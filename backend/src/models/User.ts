@@ -3,6 +3,13 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface IUser extends Document {
     username: string;
     email: string;
+    gender?: 'male' | 'female' | 'other';
+    phoneNumber?: string;
+    address?: string;
+    dateOfBirth?: Date;
+    bio?: string;
+    profilePicture?: string;
+    coverPhoto?: string;
     password?: string;
     isVerified?: boolean;
     verificationToken?: string | null;
@@ -19,6 +26,28 @@ const UserSchema = new Schema({
         type: String,
         required: true,
         unique: true,
+    },
+    gender: {
+        type: String,
+        enum: ['male', 'female', 'other'],
+    },
+    phoneNumber: {
+        type: String,
+    },
+    address: {
+        type: String
+    },
+    dateOfBirth: {
+        type: Date,
+    },
+    bio: {
+        type: String,
+    },
+    profilePicture: {
+        type: String,
+    },
+    coverPhoto: {
+        type: String,
     },
     password: {
         type: String,
