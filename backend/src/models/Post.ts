@@ -6,6 +6,8 @@ export interface IPost extends Document {
     author: mongoose.Types.ObjectId;
     tags: string[];
     status: "draft" | "published";
+    likes: mongoose.Types.ObjectId[];
+    comments: mongoose.Types.ObjectId[];
 }
 
 const PostSchema = new Schema(
@@ -35,6 +37,18 @@ const PostSchema = new Schema(
             enum: ["draft", "published"],
             default: "draft",
         },
+        likes: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+            },
+        ],
+        comments: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Comment",
+            },
+        ]
     },
     {
         timestamps: true,

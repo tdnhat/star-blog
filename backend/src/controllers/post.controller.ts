@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import Post from "../models/Post";
+import Comment from "../models/Comment";
 
-// Create
+// Create a new post
 export const createPost = async (req: Request, res: Response): Promise<any> => {
     const { title, content, tags, status } = req.body;
     const userId = (req as any).user.userId;
@@ -31,7 +32,7 @@ export const createPost = async (req: Request, res: Response): Promise<any> => {
     }
 };
 
-// Read
+// Get all posts
 export const getAllPosts = async (
     req: Request,
     res: Response
@@ -47,6 +48,7 @@ export const getAllPosts = async (
     }
 };
 
+// Get a post by ID
 export const getPostById = async (
     req: Request,
     res: Response
@@ -64,7 +66,7 @@ export const getPostById = async (
     }
 };
 
-// Update
+// Update a post
 export const updatePost = async (req: Request, res: Response): Promise<any> => {
     const { postId } = req.params;
     const { title, content, tags, status } = req.body;
@@ -87,7 +89,7 @@ export const updatePost = async (req: Request, res: Response): Promise<any> => {
     }
 };
 
-// Delete
+// Delete a post
 export const deletePost = async (req: Request, res: Response): Promise<any> => {
     const { postId } = req.params;
     try {
@@ -99,5 +101,38 @@ export const deletePost = async (req: Request, res: Response): Promise<any> => {
     } catch (error) {
         console.error("Error deleting post:", error);
         res.status(500).json({ error: "Failed to delete post" });
+    }
+};
+
+// Like/Unlike a post
+export const togglePostLike = async (
+    req: Request,
+    res: Response
+): Promise<any> => {
+    const { postId } = req.params;
+    const userId = (req as any).user.userId;
+    try {
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ error: "Post not found" });
+        }
+
+        const likeIndex = post.likes.indexOf(userId);
+
+        if (likeIndex === -1) {
+            post.likes.push(userId);
+        } else {
+            post.likes.splice(likeIndex, 1);
+        }
+
+        await post.save();
+
+        res.status(200).json({
+            liked: likeIndex === -1,
+            likesCount: post.likes.length,
+        });
+    } catch (error) {
+        console.error("Error toggling post like:", error);
+        res.status(500).json({ error: "Failed to toggle post like" });
     }
 };
