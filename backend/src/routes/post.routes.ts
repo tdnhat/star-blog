@@ -4,6 +4,7 @@ import {
     deletePost,
     getAllPosts,
     getPostById,
+    getTagStats,
     updatePost,
     likePost,
     unlikePost,
@@ -13,8 +14,9 @@ import { jwtMiddleware } from "../middlewares/jwtMiddleware";
 const postRouter = Router();
 
 postRouter
-    .get("/", jwtMiddleware, getAllPosts)
+    .get("/", getAllPosts)
     .get("/:postId", getPostById)
+    .get('/tags/stats', getTagStats)
     .post("/:postId/like", jwtMiddleware, likePost)
     .post("/:postId/unlike", jwtMiddleware, unlikePost)
     .post("/", jwtMiddleware, createPost)
