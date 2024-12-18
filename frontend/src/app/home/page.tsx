@@ -1,13 +1,25 @@
-'use client';
+"use client";
 
-import { toast } from "sonner";
+import Header from "@/components/header";
+import LeftSidebar from "./components/left-sidebar";
+import MainContent from "./components/main-content";
+import RightSidebar from "./components/right-sidebar";
+import React from "react";
 
 export default function HomePage() {
+    const [selectedTag, setSelectedTag] = React.useState<string | undefined>();
+
+    const handleTagSelect = (tag: string) => {
+        setSelectedTag(tag);
+    };
     return (
-        <div className="space-y-4">
-            <button className="btn btn-primary" onClick={() => toast.success("My first toast")}>
-                Give me a toast
-            </button>
+        <div className="min-h-screen">
+            <Header />
+            <div className="flex max-w-7xl mx-auto pt-16">
+                <LeftSidebar />
+                <MainContent selectedTag={selectedTag} />
+                <RightSidebar onTagSelect={handleTagSelect} selectedTag={selectedTag} />
+            </div>
         </div>
     );
 }

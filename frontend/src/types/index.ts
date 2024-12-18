@@ -21,3 +21,8 @@ export interface Post {
     comments: any[];
     likes: string[];
 }
+
+export interface TagStat {
+    name: string;
+    postsCount: number;
+}
