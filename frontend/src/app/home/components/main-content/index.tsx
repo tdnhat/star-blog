@@ -14,15 +14,18 @@ interface PostsResponse {
     pages: number;
 }
 
-const fetchPosts = async ({ pageParam = 1 }): Promise<PostsResponse> => {
-    const response = await fetch(
-        `http://localhost:5000/api/v1/posts?page=${pageParam}&limit=10&sortBy=createdAt&status=published`
-    );
-    return response.json();
-};
 
-const MainContent = () => {
+
+const MainContent = ({ selectedTag }: { selectedTag?: string }) => {
     const { ref, inView } = useInView();
+
+    const fetchPosts = async ({ pageParam = 1 }): Promise<PostsResponse> => {
+        const tagParam = selectedTag ? `&tags=${selectedTag}` : '';
+        const response = await fetch(
+            `http://localhost:5000/api/v1/posts?page=${pageParam}&limit=10&sortBy=createdAt&status=published${tagParam}`
+        );
+        return response.json();
+    };
 
     const {
         data,
@@ -32,7 +35,7 @@ const MainContent = () => {
         isLoading,
         error,
     } = useInfiniteQuery({
-        queryKey: ["posts"],
+        queryKey: ["posts", selectedTag],
         queryFn: fetchPosts,
         initialPageParam: 1,
         getNextPageParam: (lastPage) =>
