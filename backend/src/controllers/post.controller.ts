@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Post from "../models/Post";
-import Comment from "../models/Comment";
+import { createPostNotification } from "./notification.controller";
+import { notifyUser } from "../services/websocket";
 
 // Create a new post
 export const createPost = async (req: Request, res: Response): Promise<any> => {
@@ -104,35 +105,77 @@ export const deletePost = async (req: Request, res: Response): Promise<any> => {
     }
 };
 
-// Like/Unlike a post
-export const togglePostLike = async (
+// Like a post
+export const likePost = async (
     req: Request,
     res: Response
 ): Promise<any> => {
     const { postId } = req.params;
-    const userId = (req as any).user.userId;
+    const senderId = (req as any).user.userId;
+    try {
+        const post = await Post.findById(postId);
+        const recipientId = (post as any).author;
+        if (!post) {
+            return res.status(404).json({ error: "Post not found" });
+        }
+
+        if (!post.likes.includes(senderId)) {
+            post.likes.push(senderId);
+            await post.save();
+
+            await createPostNotification(
+                "like",
+                recipientId,
+                senderId,
+                "liked your post",
+                postId
+            );
+
+            notifyUser(recipientId, {
+                type: "like",
+                message: "Someone liked your post",
+            });
+
+            res.status(200).json({
+                liked: true,
+                likesCount: post.likes.length,
+            });
+        } else {
+            res.status(400).json({ error: "Post already liked" });
+        }
+    } catch (error) {
+        console.error("Error liking post:", error);
+        res.status(500).json({ error: "Failed to like post" });
+    }
+};
+
+// Unlike a post
+export const unlikePost = async (
+    req: Request,
+    res: Response
+): Promise<any> => {
+    const { postId } = req.params;
+    const senderId = (req as any).user.userId;
     try {
         const post = await Post.findById(postId);
         if (!post) {
             return res.status(404).json({ error: "Post not found" });
         }
 
-        const likeIndex = post.likes.indexOf(userId);
-
-        if (likeIndex === -1) {
-            post.likes.push(userId);
-        } else {
+        const likeIndex = post.likes.indexOf(senderId);
+        if (likeIndex !== -1) {
             post.likes.splice(likeIndex, 1);
+            await post.save();
+
+            res.status(200).json({
+                liked: false,
+                likesCount: post.likes.length,
+            });
+        } else {
+            res.status(400).json({ error: "Post not liked yet" });
         }
-
-        await post.save();
-
-        res.status(200).json({
-            liked: likeIndex === -1,
-            likesCount: post.likes.length,
-        });
     } catch (error) {
-        console.error("Error toggling post like:", error);
-        res.status(500).json({ error: "Failed to toggle post like" });
+        console.error("Error unliking post:", error);
+        res.status(500).json({ error: "Failed to unlike post" });
     }
 };

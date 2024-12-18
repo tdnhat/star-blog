@@ -1,8 +1,10 @@
 import express, { Application } from "express";
+import http from 'http';
 import session from "express-session";
 import dotenv from "dotenv";
 import router from "./routes/index.routes";
 import { connectDB } from "./config/db.config";
+import { setupWebSocket } from "./services/websocket";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -12,6 +14,9 @@ const PORT: number = parseInt(process.env.PORT || "5000", 10);
 
 // Connect to MongoDB
 connectDB();
+
+const server = http.createServer(app);
+setupWebSocket(server);
 
 // Middleware
 app.use(express.urlencoded({ extended: true }));

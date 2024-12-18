@@ -4,7 +4,8 @@ import {
     addComment,
     addReply,
     deleteComment,
-    toggleCommentLike,
+    likeComment,
+    unlikeComment,
 } from "../controllers/comment.controller";
 import { jwtMiddleware } from "../middlewares/jwtMiddleware";
 
@@ -16,7 +17,8 @@ commentRouter
     .get("/post/:postId", getPostComments)
     .post("/post/:postId", jwtMiddleware, addComment)
     .post("/reply/:commentId", jwtMiddleware, addReply)
-    .post('/:commentId/toggle-like', jwtMiddleware, toggleCommentLike)
+    .post('/:commentId/like', jwtMiddleware, likeComment)
+    .post('/:commentId/unlike', jwtMiddleware, unlikeComment)
     .delete("/:commentId", jwtMiddleware, deleteComment);
 
 export default commentRouter;
