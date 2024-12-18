@@ -45,21 +45,24 @@ export const createPost = async (req: Request, res: Response): Promise<any> => {
 };
 
 // Get all posts
-export const getAllPosts = async (req: Request, res: Response): Promise<any> => {
+export const getAllPosts = async (
+    req: Request,
+    res: Response
+): Promise<any> => {
     try {
-        const { 
-            tags, 
-            author, 
+        const {
+            tags,
+            author,
             status,
-            sortBy = 'createdAt', 
-            page = 1, 
-            limit = 10 
+            sortBy = "createdAt",
+            page = 1,
+            limit = 10,
         } = req.query;
 
         const query: Record<string, any> = {};
 
         if (tags) {
-            query.tags = { $in: String(tags).split(',') };
+            query.tags = { $in: String(tags).split(",") };
         }
         if (author) {
             const authorUser = await User.findOne({ username: author });
@@ -75,27 +78,30 @@ export const getAllPosts = async (req: Request, res: Response): Promise<any> => 
             skip: (Number(page) - 1) * Number(limit),
             limit: Number(limit),
             sort: { [String(sortBy)]: -1 },
-            populate: { path: 'author', select: 'username profilePicture' }
+            populate: { path: "author", select: "username profilePicture" },
         };
 
         const posts = await Post.find(query, null, options);
         const total = await Post.countDocuments(query);
-        const totalPublished = await Post.countDocuments({ status: 'published', ...query });
+        const totalPublished = await Post.countDocuments({
+            status: "published",
+            ...query,
+        });
         const totalPages = Math.ceil(total / Number(limit));
 
-        const paginatedPosts : PaginatedPosts = {
+        const paginatedPosts: PaginatedPosts = {
             posts,
             total,
             limit: Number(limit),
             page: Number(page),
             pages: totalPages,
-            totalPublished
+            totalPublished,
         };
 
         res.status(200).json(paginatedPosts);
     } catch (error) {
-        console.error('Error fetching posts:', error);
-        res.status(500).json({ error: 'Failed to fetch posts' });
+        console.error("Error fetching posts:", error);
+        res.status(500).json({ error: "Failed to fetch posts" });
     }
 };
 // Get a post by ID
@@ -155,10 +161,7 @@ export const deletePost = async (req: Request, res: Response): Promise<any> => {
 };
 
 // Like a post
-export const likePost = async (
-    req: Request,
-    res: Response
-): Promise<any> => {
+export const likePost = async (req: Request, res: Response): Promise<any> => {
     const { postId } = req.params;
     const senderId = (req as any).user.userId;
     try {
@@ -199,10 +202,7 @@ export const likePost = async (
 };
 
 // Unlike a post
-export const unlikePost = async (
-    req: Request,
-    res: Response
-): Promise<any> => {
+export const unlikePost = async (req: Request, res: Response): Promise<any> => {
     const { postId } = req.params;
     const senderId = (req as any).user.userId;
     try {
@@ -226,5 +226,33 @@ export const unlikePost = async (
     } catch (error) {
         console.error("Error unliking post:", error);
         res.status(500).json({ error: "Failed to unlike post" });
+    }
+};
+
+// Get Tag Stats
+export const getTagStats = async (req: Request, res: Response) => {
+    try {
+        const tagStats = await Post.aggregate([
+            { $match: { status: "published" } },
+            { $unwind: "$tags" },
+            {
+                $group: {
+                    _id: "$tags",
+                    postsCount: { $sum: 1 },
+                },
+            },
+            {
+                $project: {
+                    _id: 0,
+                    name: "$_id",
+                    postsCount: 1,
+                },
+            },
+            { $sort: { postsCount: -1 } },
+        ]);
+
+        res.status(200).json({ tags: tagStats });
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching tag statistics" });
     }
 };

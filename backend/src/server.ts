@@ -5,9 +5,11 @@ import dotenv from "dotenv";
 import router from "./routes/index.routes";
 import { connectDB } from "./config/db.config";
 import { setupWebSocket } from "./services/websocket";
+import cors from "cors";
 
 // Load environment variables from .env file
 dotenv.config();
+
 
 const app: Application = express();
 const PORT: number = parseInt(process.env.PORT || "5050", 10);
@@ -15,10 +17,12 @@ const PORT: number = parseInt(process.env.PORT || "5050", 10);
 // Connect to MongoDB
 connectDB();
 
+
 const server = http.createServer(app);
 setupWebSocket(server);
 
 // Middleware
+app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(
