@@ -40,7 +40,7 @@ export const localSignup = async (
 
         // 5. Send verification email
         try {
-            const verificationLink = `http://localhost:3000/verify-email?token=${verificationToken}`;
+            const verificationLink = `http://localhost:5000/api/v1/auth/verify-email?token=${verificationToken}`;
             await sendMail(
                 email,
                 "Email Verification",
@@ -84,7 +84,7 @@ export const verifyEmail = async (
         user.verificationToken = null;
         await user.save();
 
-        res.status(200).json({ message: "Email verified successfully" });
+        return res.redirect('http://localhost:3000/email-verified');
     } catch (error) {
         console.error("Error verifying email:", error);
         res.status(500).json({ error: "Internal server error" });
@@ -120,10 +120,7 @@ export const googleCallback = async (req: Request, res: Response) => {
     const user = req.user;
     const token = signToken({ userId: (user as any)._id });
 
-    res.json({
-        message: "Google login successful",
-        token,
-    });
+    return res.redirect('http://localhost:3000/login?token=' + token);
 };
 
 // Get profile
