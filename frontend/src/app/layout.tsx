@@ -30,7 +30,7 @@ export default function RootLayout({
       >
         <QueryClientProvider client={queryClient}>
           {children}
-          <Toaster richColors closeButton />
+          <Toaster richColors closeButton position="top-center" />
         </QueryClientProvider>
       </body>
     </html>

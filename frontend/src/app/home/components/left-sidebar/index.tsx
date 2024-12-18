@@ -42,7 +42,7 @@ const LeftSidebar = () => {
     ];
 
     return (
-        <aside className="hidden lg:flex flex-col w-64 h-screen top-0 pt-4 px-2 bg-base-100">
+        <aside className="hidden lg:flex flex-col w-64 h-screen sticky top-[68px] pt-4 px-2 bg-base-100">
             <nav className="menu menu-vertical px-4">
                 {menuItems.map((item, index) => (
                     <li key={index}>

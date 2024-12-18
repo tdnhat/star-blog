@@ -28,7 +28,7 @@ const RightSidebar = ({ onTagSelect, selectedTag }: RightSidebarProps) => {
     const topTags = tags?.slice(0, 5) || [];
 
     return (
-        <aside className="hidden lg:flex flex-col w-80 h-screen sticky top-0 pt-4 px-2">
+        <aside className="hidden lg:flex flex-col w-80 h-screen sticky top-[68px] pt-4 px-2">
             <div className="card bg-base-200">
                 <div className="card-body p-4">
                     <h2 className="card-title text-lg font-bold flex items-center gap-2">
