@@ -24,7 +24,7 @@ const Header = () => {
                     </button>
 
                     <Link
-                        href="/"
+                        href="/home"
                         className="border-white border-1 text-2xl text-white font-bold mr-2"
                     >
                         Star Blog
@@ -48,16 +48,20 @@ const Header = () => {
                         <Search size={20} className="lg:hidden" />
                     </button>
 
-                    {isAuthenticated ? (
+                    {!isAuthenticated ? (
+                        <div className="flex gap-2">
+                            <Link href="/login" className="btn btn-ghost">
+                                Login
+                            </Link>
+                            <Link href="/signup" className="btn btn-primary">
+                                Sign up
+                            </Link>
+                        </div>
+                    ) : (
                         <>
                             <Link href="/new" className="btn btn-outline">
-                                <PenSquare
-                                    size={20}
-                                    className="hidden sm:block"
-                                />
-                                <span className="hidden sm:block">
-                                    Create Post
-                                </span>
+                                <PenSquare size={20} className="hidden sm:block" />
+                                <span className="hidden sm:block">Create Post</span>
                                 <PenSquare size={20} className="sm:hidden" />
                             </Link>
 
@@ -65,9 +69,7 @@ const Header = () => {
                                 <button className="btn btn-ghost btn-circle">
                                     <div className="indicator">
                                         <Bell size={20} />
-                                        <span className="badge badge-sm badge-primary indicator-item">
-                                            2
-                                        </span>
+                                        <span className="badge badge-sm badge-primary indicator-item">2</span>
                                     </div>
                                 </button>
                             </div>
@@ -109,15 +111,6 @@ const Header = () => {
                                 </ul>
                             </div>
                         </>
-                    ) : (
-                        <div className="flex gap-2">
-                            <Link href="/login" className="btn btn-ghost">
-                                Login
-                            </Link>
-                            <Link href="/signup" className="btn btn-primary">
-                                Sign up
-                            </Link>
-                        </div>
                     )}
                 </div>
             </div>
