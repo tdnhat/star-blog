@@ -75,7 +75,7 @@ const RightSidebar = () => {
   ];
 
   return (
-    <aside className="hidden lg:flex flex-col w-80 h-screen sticky top-0 pt-4 px-2 gap-4 ">
+    <aside className="hidden lg:flex flex-col w-80 h-screen top-0 pt-4 px-2 gap-4 ">
       {/* Active Discussions */}
       <div className="card bg-base-200">
         <div className="card-body p-4">
@@ -104,8 +104,8 @@ const RightSidebar = () => {
 
       {/* Popular Tags */}
       <div className="card bg-base-200">
-        <div className="card-body">
-          <h2 className="card-title text-lg flex items-center gap-2">
+        <div className="card-body p-4">
+          <h2 className="card-title text-lg font-bold flex items-center gap-2">
             <Hash size={20} />
             Popular Tags
           </h2>

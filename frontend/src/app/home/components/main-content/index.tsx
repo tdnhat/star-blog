@@ -1,154 +1,97 @@
-import React from "react";
-import { useInView } from "react-intersection-observer";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { Heart, MessageCircle, Bookmark } from "lucide-react";
+"use client";
 
-interface Post {
-    id: string;
-    title: string;
-    author: {
-        name: string;
-        avatar: string;
-    };
-    coverImage?: string;
-    tags: string[];
-    readTime: string;
-    reactions: number;
-    comments: number;
-    createdAt: string;
+import React from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInView } from "react-intersection-observer";
+import { Post } from "@/types";
+import { PostCard } from "./PostCard";
+
+interface PostsResponse {
+    posts: Post[];
+    total: number;
+    limit: number;
+    page: number;
+    pages: number;
 }
 
+const fetchPosts = async ({ pageParam = 1 }): Promise<PostsResponse> => {
+    const response = await fetch(
+        `http://localhost:5000/api/v1/posts?page=${pageParam}&limit=10&sortBy=createdAt&status=published`
+    );
+    return response.json();
+};
+
 const MainContent = () => {
-    const posts: Post[] = [
-        {
-            id: "1",
-            title: "Building Modern Web Applications with Next.js and TypeScript",
-            author: {
-                name: "John Developer",
-                avatar: "https://github.com/shadcn.png",
-            },
-            coverImage: "https://picsum.photos/800/400",
-            tags: ["nextjs", "typescript", "webdev"],
-            readTime: "5 min read",
-            reactions: 124,
-            comments: 45,
-            createdAt: "2024-02-20",
-        },
-        // Add more mock posts here
-    ];
+    const { ref, inView } = useInView();
+
+    const {
+        data,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        isLoading,
+        error,
+    } = useInfiniteQuery({
+        queryKey: ["posts"],
+        queryFn: fetchPosts,
+        initialPageParam: 1,
+        getNextPageParam: (lastPage) =>
+            lastPage.page < lastPage.pages ? lastPage.page + 1 : undefined,
+    });
+
+    React.useEffect(() => {
+        if (inView && hasNextPage) {
+            fetchNextPage();
+        }
+    }, [inView, hasNextPage, fetchNextPage]);
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-1 justify-center items-center h-96">
+                <span className="loading loading-spinner loading-lg"></span>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="alert alert-error">
+                <span>Failed to load posts. Please try again later.</span>
+            </div>
+        );
+    }
+
+    const allPosts = data?.pages.flatMap((page) => page.posts) ?? [];
 
     return (
         <main className="flex-1 max-w-3xl mx-auto px-4 py-6">
-            {/* Featured Post */}
-            <div className="card bg-base-200 mb-6">
-                <figure>
-                    <img
-                        src={posts[0].coverImage}
-                        alt={posts[0].title}
-                        className="w-full h-48 object-cover"
-                    />
-                </figure>
-                <div className="card-body">
-                    <div className="flex items-center gap-2 mb-2">
-                        <div className="avatar">
-                            <div className="w-8 rounded-full">
-                                <img
-                                    src={posts[0].author.avatar}
-                                    alt={posts[0].author.name}
-                                />
-                            </div>
-                        </div>
-                        <span className="font-medium">
-                            {posts[0].author.name}
-                        </span>
-                    </div>
-                    <h2 className="card-title text-2xl hover:text-primary cursor-pointer">
-                        {posts[0].title}
-                    </h2>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                        {posts[0].tags.map((tag) => (
-                            <span key={tag} className="badge badge-ghost">
-                                #{tag}
-                            </span>
-                        ))}
-                    </div>
-                    <div className="flex justify-between items-center mt-4">
-                        <div className="flex items-center gap-4">
-                            <button className="btn btn-ghost btn-sm gap-2">
-                                <Heart size={18} />
-                                {posts[0].reactions}
-                            </button>
-                            <button className="btn btn-ghost btn-sm gap-2">
-                                <MessageCircle size={18} />
-                                {posts[0].comments}
-                            </button>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <span className="text-sm text-base-content/70">
-                                {posts[0].readTime}
-                            </span>
-                            <button className="btn btn-ghost btn-sm">
-                                <Bookmark size={18} />
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            <div className="space-y-4">
+                {allPosts.map((post) => (
+                    <PostCard key={post._id} post={post} />
+                ))}
             </div>
 
-            {/* Post List */}
-            <div className="space-y-4">
-                {posts.map((post) => (
-                    <article key={post.id} className="card bg-base-200">
-                        <div className="card-body">
-                            <div className="flex items-center gap-2 mb-2">
-                                <div className="avatar">
-                                    <div className="w-8 rounded-full">
-                                        <img
-                                            src={post.author.avatar}
-                                            alt={post.author.name}
-                                        />
-                                    </div>
-                                </div>
-                                <span className="font-medium">
-                                    {post.author.name}
-                                </span>
-                            </div>
-                            <h2 className="card-title hover:text-primary cursor-pointer">
-                                {post.title}
-                            </h2>
-                            <div className="flex flex-wrap gap-2 mt-2">
-                                {post.tags.map((tag) => (
-                                    <span
-                                        key={tag}
-                                        className="badge badge-ghost"
-                                    >
-                                        #{tag}
-                                    </span>
-                                ))}
-                            </div>
-                            <div className="flex justify-between items-center mt-4">
-                                <div className="flex items-center gap-4">
-                                    <button className="btn btn-ghost btn-sm gap-2">
-                                        <Heart size={18} />
-                                        {post.reactions}
-                                    </button>
-                                    <button className="btn btn-ghost btn-sm gap-2">
-                                        <MessageCircle size={18} />
-                                        {post.comments}
-                                    </button>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-sm text-base-content/70">
-                                        {post.readTime}
-                                    </span>
-                                    <button className="btn btn-ghost btn-sm">
-                                        <Bookmark size={18} />
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </article>
-                ))}
+            <div ref={ref} className="mt-8 text-center">
+                {isFetchingNextPage ? (
+                    <span className="loading loading-dots loading-md"></span>
+                ) : hasNextPage ? (
+                    <span className="text-base-content/70">
+                        Loading more posts...
+                    </span>
+                ) : (
+                    <div className="font-medium text-base-content/70">
+                        <span>
+                            You have reached the end! No more posts to load.
+                        </span>
+                        <a
+                            href=""
+                            onClick={() => window.location.reload()}
+                            className="text-primary"
+                        >
+                            {` Refresh`}
+                        </a>{" "}
+                    </div>
+                )}
             </div>
         </main>
     );
