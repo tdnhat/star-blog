@@ -12,10 +12,8 @@ import { jwtMiddleware } from "../middlewares/jwtMiddleware";
 
 const postRouter = Router();
 
-// postRouter.use(jwtMiddleware);
-
 postRouter
-    .get("/", getAllPosts)
+    .get("/", jwtMiddleware, getAllPosts)
     .get("/:postId", getPostById)
     .post("/:postId/like", jwtMiddleware, likePost)
     .post("/:postId/unlike", jwtMiddleware, unlikePost)

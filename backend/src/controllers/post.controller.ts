@@ -2,6 +2,17 @@ import { Request, Response } from "express";
 import Post from "../models/Post";
 import { createPostNotification } from "./notification.controller";
 import { notifyUser } from "../services/websocket";
+import { Document } from "mongoose";
+import User from "../models/User";
+
+interface PaginatedPosts {
+    posts: Document[];
+    total: number;
+    limit: number;
+    page: number;
+    pages: number;
+    totalPublished: number;
+}
 
 // Create a new post
 export const createPost = async (req: Request, res: Response): Promise<any> => {
@@ -34,21 +45,59 @@ export const createPost = async (req: Request, res: Response): Promise<any> => {
 };
 
 // Get all posts
-export const getAllPosts = async (
-    req: Request,
-    res: Response
-): Promise<any> => {
+export const getAllPosts = async (req: Request, res: Response): Promise<any> => {
     try {
-        const posts = await Post.find()
-            .sort({ createdAt: -1 })
-            .populate("author", "username");
-        res.status(200).json({ posts });
+        const { 
+            tags, 
+            author, 
+            status,
+            sortBy = 'createdAt', 
+            page = 1, 
+            limit = 10 
+        } = req.query;
+
+        const query: Record<string, any> = {};
+
+        if (tags) {
+            query.tags = { $in: String(tags).split(',') };
+        }
+        if (author) {
+            const authorUser = await User.findOne({ username: author });
+            if (authorUser) {
+                query.author = authorUser._id;
+            }
+        }
+        if (status) {
+            query.status = status;
+        }
+
+        const options = {
+            skip: (Number(page) - 1) * Number(limit),
+            limit: Number(limit),
+            sort: { [String(sortBy)]: -1 },
+            populate: { path: 'author', select: 'username profilePicture' }
+        };
+
+        const posts = await Post.find(query, null, options);
+        const total = await Post.countDocuments(query);
+        const totalPublished = await Post.countDocuments({ status: 'published', ...query });
+        const totalPages = Math.ceil(total / Number(limit));
+
+        const paginatedPosts : PaginatedPosts = {
+            posts,
+            total,
+            limit: Number(limit),
+            page: Number(page),
+            pages: totalPages,
+            totalPublished
+        };
+
+        res.status(200).json(paginatedPosts);
     } catch (error) {
-        console.error("Error fetching posts:", error);
-        res.status(500).json({ error: "Failed to fetch posts" });
+        console.error('Error fetching posts:', error);
+        res.status(500).json({ error: 'Failed to fetch posts' });
     }
 };
-
 // Get a post by ID
 export const getPostById = async (
     req: Request,
