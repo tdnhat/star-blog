@@ -31,6 +31,7 @@ export interface Post {
     updatedAt: string;
     comments: any[];
     likes: string[];
+    isLiked: boolean;
     likesCount: number;
     commentsCount: number;
 }

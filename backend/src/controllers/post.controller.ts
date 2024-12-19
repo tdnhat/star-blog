@@ -122,7 +122,7 @@ export const getAllPosts = async (
         console.error("Error fetching posts:", error);
         res.status(500).json({ error: "Failed to fetch posts" });
     }
-}; 
+};
 
 // Get a post by ID
 export const getPostById = async (
@@ -131,7 +131,10 @@ export const getPostById = async (
 ): Promise<any> => {
     const { postId } = req.params;
     try {
-        const post = await Post.findById(postId).populate("author", "username profilePicture");
+        const post = await Post.findById(postId).populate(
+            "author",
+            "username profilePicture"
+        );
         if (!post) {
             return res.status(404).json({ error: "Post not found" });
         }
@@ -192,6 +195,7 @@ export const likePost = async (req: Request, res: Response): Promise<any> => {
 
         if (!post.likes.includes(senderId)) {
             post.likes.push(senderId);
+            post.likesCount = post.likes.length;
             await post.save();
 
             await createPostNotification(
@@ -209,7 +213,7 @@ export const likePost = async (req: Request, res: Response): Promise<any> => {
 
             res.status(200).json({
                 liked: true,
-                likesCount: post.likes.length,
+                likesCount: post.likesCount,
             });
         } else {
             res.status(400).json({ error: "Post already liked" });
@@ -219,7 +223,6 @@ export const likePost = async (req: Request, res: Response): Promise<any> => {
         res.status(500).json({ error: "Failed to like post" });
     }
 };
-
 // Unlike a post
 export const unlikePost = async (req: Request, res: Response): Promise<any> => {
     const { postId } = req.params;
@@ -233,6 +236,7 @@ export const unlikePost = async (req: Request, res: Response): Promise<any> => {
         const likeIndex = post.likes.indexOf(senderId);
         if (likeIndex !== -1) {
             post.likes.splice(likeIndex, 1);
+            post.likesCount = post.likes.length;
             await post.save();
 
             res.status(200).json({
@@ -273,5 +277,34 @@ export const getTagStats = async (req: Request, res: Response) => {
         res.status(200).json({ tags: tagStats });
     } catch (error) {
         res.status(500).json({ message: "Error fetching tag statistics" });
+    }
+};
+
+// Get Post Interactions
+export const getPostInteractions = async (
+    req: Request,
+    res: Response
+): Promise<any> => {
+    const { postId } = req.params;
+
+    // Get userId from optional auth middleware
+    const userId = (req as any).user?.userId;
+
+    try {
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ error: "Post not found" });
+        }
+
+        // Check if user liked the post (only if userId is available)
+        const isLiked = userId ? post.likes.includes(userId) : false;
+
+        res.status(200).json({
+            isLiked,
+            likesCount: post.likes.length,
+        });
+    } catch (error) {
+        console.error("Error fetching post:", error);
+        res.status(500).json({ error: "Failed to fetch post" });
     }
 };
