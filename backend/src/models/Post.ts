@@ -9,6 +9,7 @@ export interface IPost extends Document {
     status: "draft" | "published";
     likesCount: number;
     likes: mongoose.Types.ObjectId[];
+    bookmarks: mongoose.Types.ObjectId[];
     commentsCount: number;
     comments: mongoose.Types.ObjectId[];
 }
@@ -49,6 +50,12 @@ const PostSchema = new Schema(
             default: 0,
         },
         likes: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+            },
+        ],
+        bookmarks: [
             {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "User",

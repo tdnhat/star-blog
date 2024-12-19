@@ -120,6 +120,29 @@ export const getAllPosts = async (
     }
 };
 
+// Get saved posts
+export const getSavedPosts = async (
+    req: Request,
+    res: Response
+): Promise<any> => {
+    const userId = (req as any).user?.userId;
+
+    try {
+        const user = await User.findById(userId);
+        
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const savedPosts = user.savedPosts || [];
+
+        res.status(200).json({ savedPost: savedPosts });
+    } catch (error) {
+        console.error("Error fetching saved posts:", error);
+        res.status(500).json({ error: "Failed to fetch saved posts" });
+    }
+};
+
 // Get a post by ID
 export const getPostById = async (
     req: Request,
@@ -309,5 +332,54 @@ export const getPostInteractions = async (
     } catch (error) {
         console.error("Error fetching post:", error);
         res.status(500).json({ error: "Failed to fetch post" });
+    }
+};
+
+// Bookmark a post
+export const savePost = async (req: Request, res: Response): Promise<any> => {
+    const { postId } = req.params;
+    const userId = (req as any).user?.userId;
+
+    if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+    }
+
+    try {
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ error: "Post not found" });
+        }
+
+        // Check if post is already bookmarked
+        const isSaved = post.bookmarks.includes(userId);
+
+        if (isSaved) {
+            // Remove bookmark
+            await Post.findByIdAndUpdate(postId, {
+                $pull: { bookmarks: userId },
+            });
+            await User.findByIdAndUpdate(userId, {
+                $pull: { savedPosts: postId },
+            });
+            res.status(200).json({
+                message: "Post removed",
+                isSaved: false,
+            });
+        } else {
+            // Add bookmark
+            await Post.findByIdAndUpdate(postId, {
+                $push: { bookmarks: userId },
+            });
+            await User.findByIdAndUpdate(userId, {
+                $push: { savedPosts: postId },
+            });
+            res.status(200).json({
+                message: "Post saved",
+                isSaved: true,
+            });
+        }
+    } catch (error) {
+        console.error("Error saving post:", error);
+        res.status(500).json({ error: "Failed to save post" });
     }
 };
