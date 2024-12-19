@@ -68,8 +68,12 @@ export default function NewPostPage() {
     // React Query mutation for post submission
     const { mutate } = useMutation({
         mutationFn: createPost,
-        onSuccess: () => {
-            toast.success("Post created successfully");
+        onSuccess: (data) => {
+            if (data.status === "draft") {
+                toast.success("Post saved as draft");
+            } else {
+                toast.success("Post created successfully");
+            }
             router.push("/home"); // Redirect to posts list or success page
         },
         onError: (error: Error) => {
@@ -85,12 +89,12 @@ export default function NewPostPage() {
         setPendingButton("draft");
         const postData: PostData = {
             title,
+            thumbnail,
             content, // Pass HTML content
             tags,
             status: "draft",
         };
         mutate(postData);
-        toast.info("Post saved as draft");
     };
 
     // Form submission handler

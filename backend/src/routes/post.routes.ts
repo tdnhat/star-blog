@@ -9,6 +9,8 @@ import {
     updatePost,
     likePost,
     unlikePost,
+    savePost,
+    getSavedPosts,
 } from "../controllers/post.controller";
 import { jwtMiddleware } from "../middlewares/jwtMiddleware";
 import { upload } from "../middlewares/upload.middleware";
@@ -19,9 +21,11 @@ const postRouter = Router();
 
 postRouter
     .get("/", getAllPosts)
-    .get("/:postId", optionalAuth, getPostById)
     .get("/tags/stats", getTagStats)
+    .get("/:postId", optionalAuth, getPostById)
+    .get("/:postId/saved-posts", jwtMiddleware, getSavedPosts)
     .get("/:postId/interactions", optionalAuth, getPostInteractions)
+    .post("/:postId/save", jwtMiddleware, savePost)
     .post("/:postId/like", jwtMiddleware, likePost)
     .post("/:postId/unlike", jwtMiddleware, unlikePost)
     .post(
