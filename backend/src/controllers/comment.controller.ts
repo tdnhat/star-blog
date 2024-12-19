@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import Comment from "../models/Comment";
 import { notifyUser } from "../services/websocket";
 import { createCommentNotification, createPostNotification } from "./notification.controller";
+import Post from "../models/Post";
 
 // Get all comments for a post
 export const getPostComments = async (
@@ -13,7 +14,7 @@ export const getPostComments = async (
         const mainComments = await Comment.find({
             post: postId,
             isReply: false,
-        }).populate("author", "username");
+        }).sort({ createdAt: -1 }).populate("author", "username");
 
         const commentsWithReplies = await Promise.all(
             mainComments.map(async (comment) => {
@@ -44,12 +45,20 @@ export const addComment = async (req: Request, res: Response): Promise<any> => {
             return res.status(400).json({ error: "Content is required" });
         }
 
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ error: "Post not found" });
+        }
+
         const newComment = await Comment.create({
             content,
             author: userId,
             post: postId,
             isReply: false,
         });
+
+        // Push the new comment to the post's comments array
+        post.comments.push(newComment._id as any);
 
         const populatedComment = await newComment.populate(
             "author",
@@ -142,9 +151,16 @@ export const deleteComment = async (
 
     try {
         const comment = await Comment.findById(commentId);
+        const postId = comment?.post;
+        const post = await Post.findById(postId);
 
         if (!comment) {
             res.status(404).json({ error: "Comment not found" });
+            return;
+        }
+
+        if (!post) {
+            res.status(404).json({ error: "Post not found" });
             return;
         }
 
@@ -154,6 +170,12 @@ export const deleteComment = async (
             });
             return;
         }
+
+        // Delete main comments from post
+        post.comments = post.comments.filter(
+            (c) => c.toString() !== commentId
+        );
+        await post.save();
 
         if (!comment.isReply) {
             // Delete all replies if it's a main comment

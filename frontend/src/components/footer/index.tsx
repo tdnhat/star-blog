@@ -3,7 +3,7 @@ import Link from "next/link";
 
 const Footer: React.FC = () => {
     return (
-        <footer className="footer p-10 bg-base-200 text-base-content">
+        <footer className="footer bottom-0 p-10 bg-base-200 text-base-content">
             <div>
                 <h4 className="footer-title">Star Blog</h4>
                 <Link href="/about" className="link link-hover">About</Link>

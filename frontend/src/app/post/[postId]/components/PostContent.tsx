@@ -2,6 +2,7 @@
 
 import { Post } from "@/types";
 import React from "react";
+import CommentSection from "./CommentSection";
 
 interface PostContentProps {
     post: Post;
@@ -9,7 +10,7 @@ interface PostContentProps {
 
 export const PostContent = ({ post }: PostContentProps) => {
     return (
-        <div className="col-span-8 pt-16">
+        <div className="col-span-11 pt-16">
             <article className="space-y-4">
                 <img
                     src={post.thumbnail || "/default-thumbnail.jpg"}
@@ -50,16 +51,18 @@ export const PostContent = ({ post }: PostContentProps) => {
                         <p className="text-base-content/60 text-xs">
                             Posted on{" "}
                             {new Date(post.createdAt).toLocaleDateString()}
-                            {post.updatedAt !== post.createdAt && (
-                                <>
-                                    {" "}
-                                    • Edited on{" "}
-                                    {new Date(
-                                        post.updatedAt
-                                    ).toLocaleDateString()}
-                                </>
-                            )}
-                        </p>
+                            {post.updatedAt !== post.createdAt &&
+                                new Date(post.updatedAt).toDateString() !==
+                                    new Date(post.createdAt).toDateString() && (
+                                    <>
+                                        {" "}
+                                        • Edited on{" "}
+                                        {new Date(
+                                            post.updatedAt
+                                        ).toLocaleDateString()}
+                                    </>
+                                )}
+                        </p>{" "}
                     </div>
                 </div>
                 <div className="divider"></div>
@@ -105,6 +108,8 @@ export const PostContent = ({ post }: PostContentProps) => {
                     dangerouslySetInnerHTML={{ __html: post.content }}
                 />
             </article>
+            <div className="divider"></div>
+            <CommentSection post={post} />
         </div>
     );
 };

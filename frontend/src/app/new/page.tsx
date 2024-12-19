@@ -111,6 +111,7 @@ export default function NewPostPage() {
 
     return (
         <div className="min-h-screen flex flex-col max-w-7xl mx-auto pt-16 space-y-4 p-4 mt-4">
+            <h1 className="text-4xl font-bold my-4">Create New Post</h1>
             <TitleSection
                 title={title}
                 tags={tags}
