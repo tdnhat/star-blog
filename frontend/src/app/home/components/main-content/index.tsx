@@ -58,7 +58,7 @@ const MainContent = ({ selectedTag }: { selectedTag?: string }) => {
 
     if (error) {
         return (
-            <div className="alert alert-error">
+            <div className="flex-1 max-w-3xl mx-auto px-4 py-6 text-center">
                 <span>Failed to load posts. Please try again later.</span>
             </div>
         );

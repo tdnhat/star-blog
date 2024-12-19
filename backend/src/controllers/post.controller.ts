@@ -17,6 +17,7 @@ interface PaginatedPosts {
 // Create a new post
 export const createPost = async (req: Request, res: Response): Promise<any> => {
     const { title, content, tags, status } = req.body;
+    const imageUrl = req.body.cloudinaryUrls[0];
     const userId = (req as any).user.userId;
 
     try {
@@ -29,6 +30,7 @@ export const createPost = async (req: Request, res: Response): Promise<any> => {
         const newPost = await Post.create({
             title,
             content,
+            thumbnail: imageUrl, // Add the thumbnail URL from Cloudinary
             author: userId,
             tags: tags || [],
             status: status || "draft",

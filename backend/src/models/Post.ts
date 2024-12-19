@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface IPost extends Document {
     title: string;
+    thumbnail: string;
     content: object; // Delta format for Quill.js
     author: mongoose.Types.ObjectId;
     tags: string[];
@@ -16,6 +17,10 @@ const PostSchema = new Schema(
             type: String,
             required: true,
             trim: true,
+        },
+        thumbnail: {
+            type: String,
+            default: null,
         },
         content: {
             type: Object, // Stores Quill's Delta format
