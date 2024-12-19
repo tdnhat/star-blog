@@ -34,7 +34,7 @@ const Header = () => {
     };
 
     return (
-        <header className="fixed top-0 z-50 w-full bg-base-200 border-b border-base-200">
+        <header className="fixed top-0 z-50 w-full bg-base-200 border-b border-base-200 px-4">
             <div className="navbar max-w-7xl mx-auto gap-2">
                 {/* Left Section */}
                 <div className="flex-1 gap-2">
@@ -111,7 +111,7 @@ const Header = () => {
                                             alt="User avatar"
                                             src={
                                                 userData?.profilePicture ||
-                                                "https://placehold.co/400"
+                                                '/default-avatar.png'
                                             }
                                         />
                                     </div>

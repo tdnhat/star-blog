@@ -1,5 +1,6 @@
 import type { Config } from "tailwindcss";
 import daisyui from "daisyui";
+import '@tailwindcss/typography'
 
 export default {
   content: [
@@ -16,7 +17,9 @@ export default {
     },
   },
   plugins: [
-    daisyui
+    daisyui,
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('@tailwindcss/typography'),
   ],
   daisyui: {
     themes: ["light", "dark"],

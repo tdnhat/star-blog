@@ -6,6 +6,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Header from "@/components/header";
+import Footer from "@/components/footer";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
                 <QueryClientProvider client={queryClient}>
                     <Header />
                     {children}
+                    <Footer />
                     <Toaster richColors closeButton position="top-center" />
                 </QueryClientProvider>
             </body>

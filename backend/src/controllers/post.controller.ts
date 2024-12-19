@@ -91,8 +91,25 @@ export const getAllPosts = async (
         });
         const totalPages = Math.ceil(total / Number(limit));
 
+        // Calculate likes and comments count for each post
+        const postsWithCounts = await Promise.all(
+            posts.map(async (post) => {
+                const likesCount = post.likes ? post.likes.length : 0;
+                const commentsCount = await Post.aggregate([
+                    { $match: { _id: post._id } },
+                    { $project: { commentsCount: { $size: "$comments" } } },
+                ]).then((result) => result[0]?.commentsCount || 0);
+
+                return {
+                    ...post.toObject(),
+                    likesCount,
+                    commentsCount,
+                };
+            })
+        );
+
         const paginatedPosts: PaginatedPosts = {
-            posts,
+            posts: postsWithCounts as any,
             total,
             limit: Number(limit),
             page: Number(page),
@@ -105,7 +122,8 @@ export const getAllPosts = async (
         console.error("Error fetching posts:", error);
         res.status(500).json({ error: "Failed to fetch posts" });
     }
-};
+}; 
+
 // Get a post by ID
 export const getPostById = async (
     req: Request,
@@ -113,7 +131,7 @@ export const getPostById = async (
 ): Promise<any> => {
     const { postId } = req.params;
     try {
-        const post = await Post.findById(postId).populate("author", "username");
+        const post = await Post.findById(postId).populate("author", "username profilePicture");
         if (!post) {
             return res.status(404).json({ error: "Post not found" });
         }
@@ -123,7 +141,6 @@ export const getPostById = async (
         res.status(500).json({ error: "Failed to fetch post" });
     }
 };
-
 // Update a post
 export const updatePost = async (req: Request, res: Response): Promise<any> => {
     const { postId } = req.params;

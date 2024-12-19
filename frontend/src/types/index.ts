@@ -22,12 +22,7 @@ export interface Author {
 export interface Post {
     _id: string;
     title: string;
-    content: {
-        ops: Array<{
-            insert: string | { image: string };
-            attributes?: Record<string, any>;
-        }>;
-    };
+    content: string;
     thumbnail: string;
     author: Author;
     tags: string[];
@@ -36,6 +31,8 @@ export interface Post {
     updatedAt: string;
     comments: any[];
     likes: string[];
+    likesCount: number;
+    commentsCount: number;
 }
 
 export interface TagStat {

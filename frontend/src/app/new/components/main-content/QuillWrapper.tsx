@@ -1,26 +1,12 @@
-'use client';
-
 import React from 'react';
 import dynamic from 'next/dynamic';
 import 'react-quill-new/dist/quill.snow.css';
 
 const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
-interface QuillContent {
-    ops: Array<{
-        insert: string | { image: string };
-        attributes?: {
-            header?: number;
-            bold?: boolean;
-            italic?: boolean;
-            'code-block'?: boolean;
-        };
-    }>;
-}
-
 interface QuillWrapperProps {
     value: string; // The current HTML value of the editor
-    onChange: (data: { html: string; delta: QuillContent }) => void; // Callback for editor changes
+    onChange: (data: { html: string; delta: any }) => void; // Callback for editor changes
     toolbar?: boolean; // Option to enable or disable the toolbar
 }
 
@@ -54,7 +40,7 @@ const QuillWrapper: React.FC<QuillWrapperProps> = ({ value, onChange, toolbar = 
             theme="snow"
             value={value}
             onChange={(content, delta, source, editor) => {
-                onChange({ html: content, delta: editor.getContents() });
+                onChange({ html: editor.getHTML(), delta: editor.getContents() });
             }}
             modules={modules}
             formats={formats}

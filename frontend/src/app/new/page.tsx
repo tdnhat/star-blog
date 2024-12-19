@@ -10,24 +10,14 @@ import { toast } from "sonner";
 import { File } from "buffer";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
-export interface QuillContent {
-    ops: Array<{
-        insert: string | { image: string };
-        attributes?: {
-            header?: number;
-            bold?: boolean;
-            italic?: boolean;
-            "code-block"?: boolean;
-        };
-    }>;
-}
 export interface PostData {
     title: string;
     thumbnail?: File | null;
     tags: string[];
-    content: QuillContent;
+    content: string; // Now content is in HTML format
     status: "draft" | "published";
 }
+
 // Function to send POST request
 const createPost = async (postData: PostData) => {
     const token = AuthService.getToken();
@@ -35,7 +25,7 @@ const createPost = async (postData: PostData) => {
     // Use FormData for file upload
     const formData = new FormData();
     formData.append("title", postData.title);
-    formData.append("content", JSON.stringify(postData.content));
+    formData.append("content", postData.content); // Send HTML content directly
     formData.append("status", postData.status);
 
     if (postData.thumbnail) {
@@ -67,21 +57,18 @@ export default function NewPostPage() {
     const [title, setTitle] = React.useState("");
     const [thumbnail, setThumbnail] = React.useState<File | null>(null);
     const [tags, setTags] = React.useState<string[]>([]);
-    const [content, setContent] = React.useState("");
-    const [delta, setDelta] = React.useState<QuillContent>({ ops: [] });
+    const [content, setContent] = React.useState(""); // HTML content state
     const [pendingButton, setPendingButton] = React.useState<"draft" | "publish" | null>(null);
 
     // Handle content change
-    const handleContentChange = (data: { html: string; delta: QuillContent }) => {
-        setContent(data.html);
-        setDelta(data.delta);
+    const handleContentChange = (data: { html: string }) => {
+        setContent(data.html); // Only update HTML content
     };
 
     // React Query mutation for post submission
     const { mutate } = useMutation({
         mutationFn: createPost,
         onSuccess: () => {
-            // console.log("Post created successfully:", data);
             toast.success("Post created successfully");
             router.push("/home"); // Redirect to posts list or success page
         },
@@ -98,7 +85,7 @@ export default function NewPostPage() {
         setPendingButton("draft");
         const postData: PostData = {
             title,
-            content: delta,
+            content, // Pass HTML content
             tags,
             status: "draft",
         };
@@ -110,15 +97,14 @@ export default function NewPostPage() {
     const handlePublish = (e: React.FormEvent) => {
         e.preventDefault();
         setPendingButton("publish");
-    
+
         const postData: PostData = {
             title,
             thumbnail,
             tags,
-            content: delta,
+            content, // Pass HTML content
             status: "published",
         };
-
         // console.log(postData);
         mutate(postData);
     };
@@ -133,6 +119,7 @@ export default function NewPostPage() {
                 onTagsChange={setTags}
                 onThumbnailChange={setThumbnail}
             />
+            {/* Pass the HTML content to QuillWrapper */}
             <QuillWrapper value={content} onChange={handleContentChange} />
             <div className="flex justify-end gap-4 pt-12">
                 <button
