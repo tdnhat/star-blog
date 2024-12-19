@@ -45,11 +45,13 @@ export default function AddComment({
 
     return (
         <div className="flex gap-4 items-start">
-            <div className="w-6 rounded-full">
-                <img
-                    src={user?.profilePicture || "/default-avatar.png"}
-                    alt="User avatar"
-                />
+            <div className="avatar">
+                <div className="w-6 rounded-full">
+                    <img
+                        src={user?.profilePicture || "/default-avatar.png"}
+                        alt="User avatar"
+                    />
+                </div>
             </div>
             <div className="flex-1">
                 <textarea
@@ -75,4 +77,5 @@ export default function AddComment({
                 </button>
             </div>
         </div>
-    );}
+    );
+}

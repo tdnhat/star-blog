@@ -6,7 +6,6 @@ import { useQuery } from "@tanstack/react-query";
 import { AuthService } from "@/services/auth.service";
 import { InteractionButtons } from "./components/InteractionButtons";
 import { PostContent } from "./components/PostContent";
-import { TableOfContents } from "./components/TableOfContents";
 
 const getPost = async (postId: string) => {
     const token = AuthService.getToken();
