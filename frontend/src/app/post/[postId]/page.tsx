@@ -58,7 +58,7 @@ export default function PostPage() {
                     post={data.post}
                 />
                 <PostContent post={data.post} />
-                <TableOfContents />
+                {/* <TableOfContents /> */}
             </div>
         </div>
     );

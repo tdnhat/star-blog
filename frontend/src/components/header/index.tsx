@@ -111,26 +111,43 @@ const Header = () => {
                                             alt="User avatar"
                                             src={
                                                 userData?.profilePicture ||
-                                                '/default-avatar.png'
+                                                "/default-avatar.png"
                                             }
                                         />
                                     </div>
                                 </div>
                                 <ul
                                     tabIndex={0}
-                                    className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
+                                    className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow-lg bg-base-100 rounded-box w-52"
                                 >
                                     <li>
-                                        <Link href="/profile">Profile</Link>
+                                        <Link
+                                            href="/profile"
+                                            className="text-base"
+                                        >
+                                            Profile
+                                        </Link>
+                                    </li>
+                                    <div className="divider m-0"></div>
+                                    <li>
+                                        <Link
+                                            href="/dashboard"
+                                            className="text-base"
+                                        >
+                                            Dashboard
+                                        </Link>
                                     </li>
                                     <li>
-                                        <Link href="/dashboard">Dashboard</Link>
+                                        <Link href="/new" className="text-base">
+                                            Create Post
+                                        </Link>
                                     </li>
+                                    <div className="divider m-0"></div>
                                     <li>
-                                        <Link href="/settings">Settings</Link>
-                                    </li>
-                                    <li>
-                                        <button onClick={handleSignOut}>
+                                        <button
+                                            onClick={handleSignOut}
+                                            className="text-base"
+                                        >
                                             Sign out
                                         </button>
                                     </li>

@@ -80,7 +80,7 @@ export const getAllPosts = async (
             skip: (Number(page) - 1) * Number(limit),
             limit: Number(limit),
             sort: { [String(sortBy)]: -1 },
-            populate: { path: "author", select: "username profilePicture" },
+            populate: { path: "author", select: "username" },
         };
 
         const posts = await Post.find(query, null, options);
@@ -95,11 +95,7 @@ export const getAllPosts = async (
         const postsWithCounts = await Promise.all(
             posts.map(async (post) => {
                 const likesCount = post.likes ? post.likes.length : 0;
-                const commentsCount = await Post.aggregate([
-                    { $match: { _id: post._id } },
-                    { $project: { commentsCount: { $size: "$comments" } } },
-                ]).then((result) => result[0]?.commentsCount || 0);
-
+                const commentsCount = post.comments ? post.comments.length : 0;
                 return {
                     ...post.toObject(),
                     likesCount,
@@ -131,10 +127,7 @@ export const getPostById = async (
 ): Promise<any> => {
     const { postId } = req.params;
     try {
-        const post = await Post.findById(postId).populate(
-            "author",
-            "username profilePicture"
-        );
+        const post = await Post.findById(postId).populate("author", "username");
         if (!post) {
             return res.status(404).json({ error: "Post not found" });
         }

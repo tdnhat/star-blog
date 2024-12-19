@@ -93,11 +93,11 @@ export const InteractionButtons = ({ post }: InteractionButtonsProps) => {
         <div className="col-span-1 sticky top-20 h-fit pt-16">
             <div className="flex flex-col gap-8 items-center">
                 <button
-                    className={`btn btn-ghost btn-sm hover:bg-transparent ${
+                    className={`btn btn-ghost btn-sm hover:bg-transparent tooltip ${
                         isLiked ? "text-primary" : ""
                     }`}
                     onClick={handleLikeToggle}
-                    title={isLiked ? "Unlike post" : "Like post"}
+                    data-tip={isLiked ? "Unlike post" : "Like post"}
                 >
                     <div className="flex flex-col items-center">
                         <Heart
@@ -110,21 +110,29 @@ export const InteractionButtons = ({ post }: InteractionButtonsProps) => {
                         </span>
                     </div>
                 </button>
-                <button className="btn btn-ghost btn-sm">
+                <button
+                    className="btn btn-ghost btn-sm hover:bg-transparent tooltip"
+                    data-tip="Jump to Comments"
+                    onClick={() => document.getElementById('comments')?.scrollIntoView({ behavior: 'smooth' })}
+                >
                     <div className="flex flex-col items-center">
-                        <MessageCircle className="w-5 h-5" />
-                        <span className="badge badge-sm">5</span>
+                        <MessageCircle className="w-5 h-5 hover:stroke-[3px] hover:stroke-primary transition-all" />
+                        <span className="badge badge-sm"></span>
                     </div>
                 </button>
-                <button className="btn btn-ghost btn-sm">
+                <button
+                    className="btn btn-ghost btn-sm hover:bg-transparent tooltip"
+                    data-tip="Save"
+                >
                     <div className="flex flex-col items-center">
-                        <Bookmark className="w-5 h-5" />
-                        <span className="badge badge-sm">12</span>
+                        <Bookmark className="w-5 h-5 hover:stroke-[3px] hover:stroke-primary transition-all" />
+                        <span className="badge badge-sm"></span>
                     </div>
                 </button>
-                <button className="btn btn-ghost btn-sm">
+                <button className="btn btn-ghost btn-sm hover:bg-transparent tooltip"
+                    data-tip="Share">
                     <div className="flex flex-col items-center">
-                        <Share2 className="w-5 h-5" />
+                        <Share2 className="w-5 h-5 hover:stroke-[3px] hover:stroke-primary transition-all" />
                     </div>
                 </button>
             </div>
