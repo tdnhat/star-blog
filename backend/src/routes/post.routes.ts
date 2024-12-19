@@ -21,7 +21,7 @@ postRouter
     .get("/", getAllPosts)
     .get("/:postId", optionalAuth, getPostById)
     .get("/tags/stats", getTagStats)
-    .get('/:postId/interactions', optionalAuth, getPostInteractions)
+    .get("/:postId/interactions", optionalAuth, getPostInteractions)
     .post("/:postId/like", jwtMiddleware, likePost)
     .post("/:postId/unlike", jwtMiddleware, unlikePost)
     .post(

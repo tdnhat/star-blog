@@ -91,21 +91,31 @@ export const PostActions = ({ post }: PostActionsProps) => {
         }
     };
 
+    const handleRedirectComment = () => {
+        window.location.href = `/post/${post._id}`;
+    };
+
     return (
         <div className="flex justify-between items-center mt-4">
             <div className="flex items-center gap-4">
-                <button 
-                    className={`btn btn-ghost btn-sm tooltip flex gap-2 ${isLiked ? "text-primary" : ""}`}
+                <button
+                    className={`btn btn-ghost btn-sm tooltip flex gap-2 ${
+                        isLiked ? "text-primary" : ""
+                    }`}
                     onClick={handleLikeToggle}
                     data-tip={isLiked ? "Unlike post" : "Like post"}
                 >
-                    <Heart 
-                        size={18} 
-                        className={isLiked ? "fill-current" : ""} 
+                    <Heart
+                        size={18}
+                        className={isLiked ? "fill-current" : ""}
                     />
                     {likesCount}
                 </button>
-                <button className="btn btn-ghost btn-sm gap-2">
+                <button
+                    className="btn btn-ghost tooltip flex btn-sm gap-2"
+                    data-tip="Comment on post"
+                    onClick={handleRedirectComment}
+                >
                     <MessageCircle size={18} />
                     {post.comments.length}
                 </button>
