@@ -3,19 +3,38 @@ import Link from "next/link";
 import { Search, Bell, Menu, PenSquare } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { AuthService } from "@/services/auth.service";
+import { User } from "@/types";
 
 const Header = () => {
     const router = useRouter();
-    const isAuthenticated = AuthService.isAuthenticated();
-    const user = AuthService.getUserData();
+    const [isAuth, setIsAuth] = React.useState(false);
+    const [userData, setUserData] = React.useState<User | null>(null);
+
+    React.useEffect(() => {
+        const updateAuthState = () => {
+            setIsAuth(AuthService.isAuthenticated());
+            setUserData(AuthService.getUserData());
+        };
+
+        // Initial state setup
+        updateAuthState();
+
+        // Subscribe to auth changes
+        AuthService.onAuthChange(updateAuthState);
+
+        // Cleanup the callback
+        return () => AuthService.onAuthChange(() => {});
+    }, []);
 
     const handleSignOut = () => {
         AuthService.logout();
+        setIsAuth(false);
+        setUserData(null);
         router.push("/login");
     };
 
     return (
-        <header className="fixed top-0 z-50 w-full bg-base-200 border-b border-base-200">
+        <header className="fixed top-0 z-50 w-full bg-base-200 border-b border-base-200 px-4">
             <div className="navbar max-w-7xl mx-auto gap-2">
                 {/* Left Section */}
                 <div className="flex-1 gap-2">
@@ -48,7 +67,7 @@ const Header = () => {
                         <Search size={20} className="lg:hidden" />
                     </button>
 
-                    {!isAuthenticated ? (
+                    {!isAuth ? (
                         <div className="flex gap-2">
                             <Link href="/login" className="btn btn-ghost">
                                 Login
@@ -60,8 +79,13 @@ const Header = () => {
                     ) : (
                         <>
                             <Link href="/new" className="btn btn-outline">
-                                <PenSquare size={20} className="hidden sm:block" />
-                                <span className="hidden sm:block">Create Post</span>
+                                <PenSquare
+                                    size={20}
+                                    className="hidden sm:block"
+                                />
+                                <span className="hidden sm:block">
+                                    Create Post
+                                </span>
                                 <PenSquare size={20} className="sm:hidden" />
                             </Link>
 
@@ -69,7 +93,9 @@ const Header = () => {
                                 <button className="btn btn-ghost btn-circle">
                                     <div className="indicator">
                                         <Bell size={20} />
-                                        <span className="badge badge-sm badge-primary indicator-item">2</span>
+                                        <span className="badge badge-sm badge-primary indicator-item">
+                                            2
+                                        </span>
                                     </div>
                                 </button>
                             </div>
@@ -84,8 +110,8 @@ const Header = () => {
                                         <img
                                             alt="User avatar"
                                             src={
-                                                user?.profilePicture ||
-                                                "https://placehold.co/400"
+                                                userData?.profilePicture ||
+                                                '/default-avatar.png'
                                             }
                                         />
                                     </div>

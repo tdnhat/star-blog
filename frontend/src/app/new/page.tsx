@@ -7,36 +7,39 @@ import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { AuthService } from "@/services/auth.service";
 import { toast } from "sonner";
+import { File } from "buffer";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
-export interface QuillContent {
-    ops: Array<{
-        insert: string | { image: string };
-        attributes?: {
-            header?: number;
-            bold?: boolean;
-            italic?: boolean;
-            "code-block"?: boolean;
-        };
-    }>;
-}
-
-interface PostData {
+export interface PostData {
     title: string;
-    content: QuillContent;
+    thumbnail?: File | null;
     tags: string[];
-    status: "published" | "draft";
+    content: string; // Now content is in HTML format
+    status: "draft" | "published";
 }
 
 // Function to send POST request
 const createPost = async (postData: PostData) => {
     const token = AuthService.getToken();
+
+    // Use FormData for file upload
+    const formData = new FormData();
+    formData.append("title", postData.title);
+    formData.append("content", postData.content); // Send HTML content directly
+    formData.append("status", postData.status);
+
+    if (postData.thumbnail) {
+        formData.append("thumbnail", postData.thumbnail); // Add the file
+    }
+
+    postData.tags.forEach((tag) => formData.append("tags", tag)); // Add tags as individual form fields
+
     const response = await fetch("http://localhost:5000/api/v1/posts", {
         method: "POST",
         headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`, // Only include Authorization header
         },
-        body: JSON.stringify(postData),
+        body: formData, // Use FormData as the request body
     });
 
     if (!response.ok) {
@@ -49,24 +52,23 @@ const createPost = async (postData: PostData) => {
 };
 
 export default function NewPostPage() {
+    useAuthRedirect();
     const router = useRouter();
     const [title, setTitle] = React.useState("");
+    const [thumbnail, setThumbnail] = React.useState<File | null>(null);
     const [tags, setTags] = React.useState<string[]>([]);
-    const [content, setContent] = React.useState("");
-    const [delta, setDelta] = React.useState<QuillContent>({ ops: [] });
+    const [content, setContent] = React.useState(""); // HTML content state
     const [pendingButton, setPendingButton] = React.useState<"draft" | "publish" | null>(null);
 
     // Handle content change
-    const handleContentChange = (data: { html: string; delta: QuillContent }) => {
-        setContent(data.html);
-        setDelta(data.delta);
+    const handleContentChange = (data: { html: string }) => {
+        setContent(data.html); // Only update HTML content
     };
 
     // React Query mutation for post submission
     const { mutate } = useMutation({
         mutationFn: createPost,
         onSuccess: () => {
-            // console.log("Post created successfully:", data);
             toast.success("Post created successfully");
             router.push("/home"); // Redirect to posts list or success page
         },
@@ -83,7 +85,7 @@ export default function NewPostPage() {
         setPendingButton("draft");
         const postData: PostData = {
             title,
-            content: delta,
+            content, // Pass HTML content
             tags,
             status: "draft",
         };
@@ -95,12 +97,15 @@ export default function NewPostPage() {
     const handlePublish = (e: React.FormEvent) => {
         e.preventDefault();
         setPendingButton("publish");
+
         const postData: PostData = {
             title,
-            content: delta,
+            thumbnail,
             tags,
+            content, // Pass HTML content
             status: "published",
         };
+        // console.log(postData);
         mutate(postData);
     };
 
@@ -109,9 +114,12 @@ export default function NewPostPage() {
             <TitleSection
                 title={title}
                 tags={tags}
+                thumbnail={thumbnail}
                 onTitleChange={setTitle}
                 onTagsChange={setTags}
+                onThumbnailChange={setThumbnail}
             />
+            {/* Pass the HTML content to QuillWrapper */}
             <QuillWrapper value={content} onChange={handleContentChange} />
             <div className="flex justify-end gap-4 pt-12">
                 <button

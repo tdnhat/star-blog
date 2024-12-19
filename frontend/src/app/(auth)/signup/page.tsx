@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import React from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
-
 interface SignupForm {
     username: string;
     email: string;
@@ -30,7 +29,7 @@ const signup = async (formData: SignupForm) => {
 };
 
 export default function SignupPage() {
-    useAuthRedirect();
+    // useAuthRedirect();
     const router = useRouter();
     const [formData, setFormData] = React.useState<SignupForm>({
         username: '',

@@ -52,7 +52,7 @@ export default function LoginPage() {
             .then(res => res.json())
             .then(data => {
                 // Store both token and user data
-                AuthService.setUserData({ ...data.user, token });
+                AuthService.login(token, data.user);
                 router.push('/home');
             });
         }
@@ -69,7 +69,7 @@ export default function LoginPage() {
             })
             .then(res => res.json())
             .then(userData => {
-                AuthService.setUserData({ ...userData.user, token: data.token });
+                AuthService.login(data.token, userData.user);
                 router.push('/home');
             });
         },

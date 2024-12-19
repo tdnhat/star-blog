@@ -2,11 +2,14 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface IPost extends Document {
     title: string;
-    content: object; // Delta format for Quill.js
+    thumbnail: string;
+    content: string;
     author: mongoose.Types.ObjectId;
     tags: string[];
     status: "draft" | "published";
+    likesCount: number;
     likes: mongoose.Types.ObjectId[];
+    commentsCount: number;
     comments: mongoose.Types.ObjectId[];
 }
 
@@ -17,8 +20,12 @@ const PostSchema = new Schema(
             required: true,
             trim: true,
         },
+        thumbnail: {
+            type: String,
+            default: null,
+        },
         content: {
-            type: Object, // Stores Quill's Delta format
+            type: String,
             required: true,
         },
         author: {
@@ -37,18 +44,26 @@ const PostSchema = new Schema(
             enum: ["draft", "published"],
             default: "draft",
         },
+        likesCount: {
+            type: Number,
+            default: 0,
+        },
         likes: [
             {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "User",
             },
         ],
+        commentsCount: {
+            type: Number,
+            default: 0,
+        },
         comments: [
             {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "Comment",
             },
-        ]
+        ],
     },
     {
         timestamps: true,

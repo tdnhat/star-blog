@@ -13,10 +13,12 @@ interface User {
     updatedAt: Date;
 }
 export class AuthService {
-    static setUserData(userData: User & { token: string }) {
-        localStorage.setItem('user', JSON.stringify(userData));
-        localStorage.setItem('token', userData.token);
-    }
+    private static isAuthCallback: (() => void) | null = null;
+
+    // static setUserData(userData: User & { token: string }) {
+    //     localStorage.setItem('user', JSON.stringify(userData));
+    //     localStorage.setItem('token', userData.token);
+    // }
 
     static getUserData(): User | null {
         const user = localStorage.getItem('user');
@@ -27,8 +29,18 @@ export class AuthService {
         return localStorage.getItem('token');
     }
 
+    static login(authToken: string, userData: User) {
+        localStorage.setItem("token", authToken);
+        localStorage.setItem("user", JSON.stringify(userData));
+        if (this.isAuthCallback) this.isAuthCallback();
+    }
+
     static isAuthenticated(): boolean {
         return !!this.getToken();
+    }
+
+    static onAuthChange(callback: () => void) {
+        this.isAuthCallback = callback;
     }
 
     static logout() {
