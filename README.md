@@ -1,4 +1,4 @@
-# Star Blog
+# <p align="center">Star Blog</p>
 
 <p align="center">
   <strong>Empower your voice, ignite your creativity today!</strong>
