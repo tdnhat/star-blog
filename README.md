@@ -1,10 +1,14 @@
 # Star Blog
 
-**Empower your voice, ignite your creativity today!**
+<p align="center">
+  <strong>Empower your voice, ignite your creativity today!</strong>
+</p>
 
-![Last Commit](https://img.shields.io/github/last-commit/tdnhat/star-blog)
-![Top Language](https://img.shields.io/github/languages/top/tdnhat/star-blog)
-![Language Count](https://img.shields.io/github/languages/count/tdnhat/star-blog)
+<p align="center">
+  <img src="https://img.shields.io/github/last-commit/tdnhat/star-blog" alt="Last Commit">
+  <img src="https://img.shields.io/github/languages/top/tdnhat/star-blog" alt="Top Language">
+  <img src="https://img.shields.io/github/languages/count/tdnhat/star-blog" alt="Language Count">
+</p>
 
 ## 🚀 Overview
 
